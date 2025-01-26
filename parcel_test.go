@@ -82,6 +82,27 @@ func TestSetAddress(t *testing.T) {
 }
 
 // TestSetStatus проверяет обновление статуса
+func TestSetStatus(t *testing.T) {
+	db, err := sql.Open("sqlite", "tracker.db")
+	require.NoError(t, err)
+	defer db.Close()
+
+	store := NewParcelStore(db)
+	parcel := getTestParcel()
+
+	id, err := store.Add(parcel)
+	require.NoError(t, err)
+
+	newStatus := ParcelStatusSent
+	err = store.SetStatus(id, newStatus)
+	require.NoError(t, err)
+
+	storedParcel, err := store.Get(id)
+	require.NoError(t, err)
+	parcel.Number = id
+	parcel.Status = newStatus
+	require.Equal(t, parcel, storedParcel)
+}
 
 // TestGetByClient проверяет получение посылок по идентификатору клиента
 func TestGetByClient(t *testing.T) {
